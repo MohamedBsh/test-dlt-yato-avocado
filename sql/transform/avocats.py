@@ -1,22 +1,25 @@
 from yato import Transformation
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import LinearRegression
+import numpy as np
 
-class AvocatsAnalysis(Transformation):
+class Avocats(Transformation):
     @staticmethod
     def source_sql():
-        return "SELECT * FROM avocats.avocats_evolution"
+        return "SELECT * FROM avocats_data"
 
     def run(self, context, *args, **kwargs):
         df = self.get_source(context)
         
+        # Melt the dataframe to have year as a column
         df_melted = pd.melt(df, id_vars=['name', 'address', 'cour_appel'], 
                             var_name='year', value_name='avocats_count')
         df_melted['year'] = df_melted['year'].str.extract('(\d+)').astype(int)
         
+        # Group by year and sum the total number of avocats
         df_total = df_melted.groupby('year')['avocats_count'].sum().reset_index()
         
+        # Predict for the next 5 years
         X = df_total['year'].values.reshape(-1, 1)
         y = df_total['avocats_count'].values
         
