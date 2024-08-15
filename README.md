@@ -38,7 +38,7 @@ By combining these tools with open data, we create a complete data pipeline (for
 
 ## Prerequisites
 
-- Python 3.7+
+- Python 3.8+
 - Node.js 12+
 - npm 6+
 
@@ -52,7 +52,9 @@ bash install.sh
 
 ## Data Source
 The data is sourced from the French government's open data portal:
-Evolution du nombre d'avocats en France par barreau https://www.data.gouv.fr/fr/datasets/r/05f4ca76-0d72-4ecd-9f5c-20a12965e348
+Evolution du nombre d'avocats en France par barreau
+
+https://www.data.gouv.fr/fr/datasets/660d4e6ba2a1ff2c464e24c5/
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.

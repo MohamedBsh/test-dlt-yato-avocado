@@ -4,10 +4,17 @@ import pandas as pd
 import dlt
 from yato import Yato
 import duckdb
+from explore_duckdb import explore_avocats_data
 
 sys.argv = [sys.argv[0]]
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 def fetch_avocats_data():
     file_path = 'data/nombre-par-barreau.csv'
@@ -19,39 +26,8 @@ def fetch_avocats_data():
         logging.error(f"Error loading data from {file_path}: {str(e)}")
         return None
 
-def check_tables_in_duckdb(db_path):
-    """Check and log the tables in the DuckDB database."""
-    try:
-        conn = duckdb.connect(db_path)
-
-        query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main';"
-        tables = conn.execute(query).fetchall()
-
-        logging.info("Tables in the database:")
-        for table in tables:
-            logging.info(table[0])
-        
-        conn.close()
-
-    except Exception as e:
-        logging.error(f"Error checking tables in DuckDB: {str(e)}")
-
-def query_avocats_data(db_path, query):
-    """Execute a query on the DuckDB database and return results."""
-    try:
-        conn = duckdb.connect(db_path)
-
-        results = conn.execute(query).fetchdf()
-        
-        conn.close()
-
-        logging.info(f"Query results:\n{results}")
-
-        return results
-
-    except Exception as e:
-        logging.error(f"Error querying data from DuckDB: {str(e)}")
-        return None
+print("Starting the pipeline...")
+logging.info("Initializing Yato...")
 
 yato = Yato(
     database_path="avocats_evolution.duckdb",
@@ -59,35 +35,49 @@ yato = Yato(
     schema="transform"
 )
 
+logging.info("Initializing DLT pipeline...")
 pipeline = dlt.pipeline(pipeline_name="avocats_evolution", destination="duckdb", dataset_name="avocats_data")
 
+logging.info("Attempting to restore database...")
+try:
+    yato.restore()
+    logging.info("Database restored successfully.")
+except Exception as e:
+    logging.warning(f"Failed to restore database: {str(e)}")
+
+logging.info("Fetching avocats data...")
 data = fetch_avocats_data()
 
 if data:
+    logging.info(f"Fetched {len(data)} records. Starting pipeline run...")
     try:
         resource = dlt.resource(data, name='avocats_data')
         
         info = pipeline.run([resource])
+        print("Pipeline run completed. Info:")
         print(info)
         logging.info(f"Pipeline run info: {info}")
 
         load_info = pipeline.run(data, table_name='avocats_data')
         logging.info(f"Load info: {load_info}")
 
+        logging.info("Attempting to backup database...")
+        try:
+            yato.backup()
+            logging.info("Database backed up successfully.")
+        except Exception as e:
+            logging.warning(f"Failed to backup database: {str(e)}")
+
     except Exception as e:
         logging.error(f"Error running pipeline: {str(e)}")
 else:
     logging.error("No data to process.")
 
-
-
+logging.info("Running Yato transformations...")
 try:
     yato.run()
     logging.info("Yato transformations completed successfully.")
 except Exception as e:
     logging.error(f"Error running Yato: {str(e)}")
 
-
-query = "SELECT * FROM avocats_data LIMIT 10;"
-results = query_avocats_data('avocats_evolution.duckdb', query)
-print(results)
+#explore_avocats_data('avocats_evolution.duckdb')
