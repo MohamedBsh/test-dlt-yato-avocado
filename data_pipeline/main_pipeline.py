@@ -3,8 +3,6 @@ import logging
 import pandas as pd
 import dlt
 from yato import Yato
-import duckdb
-from explore_duckdb import explore_avocats_data
 
 sys.argv = [sys.argv[0]]
 
@@ -17,14 +15,15 @@ logging.basicConfig(
 )
 
 def fetch_avocats_data():
-    file_path = 'data/nombre-par-barreau.csv'
-    try:
-        data = pd.read_csv(file_path, sep=';')
-        logging.info(f"Loaded {len(data)} records from {file_path}")
-        return data.to_dict(orient='records')
-    except Exception as e:
-        logging.error(f"Error loading data from {file_path}: {str(e)}")
-        return None
+  file_path = 'data/nombre-par-barreau.csv'
+  try:
+    data = pd.read_csv(file_path, sep=';')
+    logging.info(f"Loaded {len(data)} records from {file_path}")
+    yield data.to_dict(orient='records')
+  except Exception as e:
+    logging.error(f"Error loading data from {file_path}: {str(e)}")
+    yield None
+
 
 print("Starting the pipeline...")
 logging.info("Initializing Yato...")
@@ -49,7 +48,6 @@ logging.info("Fetching avocats data...")
 data = fetch_avocats_data()
 
 if data:
-    logging.info(f"Fetched {len(data)} records. Starting pipeline run...")
     try:
         resource = dlt.resource(data, name='avocats_data')
         
@@ -79,5 +77,3 @@ try:
     logging.info("Yato transformations completed successfully.")
 except Exception as e:
     logging.error(f"Error running Yato: {str(e)}")
-
-#explore_avocats_data('avocats_evolution.duckdb')
