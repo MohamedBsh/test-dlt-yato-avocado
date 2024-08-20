@@ -1,5 +1,4 @@
 import duckdb
-import pandas as pd
 
 def safe_execute(con, query):
     try:
@@ -10,50 +9,43 @@ def safe_execute(con, query):
 
 def explore_avocats_data(db_path):
     try:
-        # Connect to the database
         con = duckdb.connect(db_path, read_only=True)
         print(f"Successfully connected to database: {db_path}")
 
-        # List all schemas
         schemas = safe_execute(con, "SELECT schema_name FROM information_schema.schemata")
         if schemas:
             print("Schemas in the database:", [schema[0] for schema in schemas])
 
-        # Check if 'avocats_data' table exists in the 'avocats' schema
-        table_check = safe_execute(con, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'avocats' AND table_name = 'avocats_data'")
-        
-        if table_check:
-            print("\nTable 'avocats.avocats_data' found. Fetching information...")
+        table_found = False
+        for schema in schemas:
+            schema_name = schema[0]
+            tables = safe_execute(con, f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema_name}'")
+            print(f"Tables in schema {schema_name}:", [table[0] for table in tables])
             
-            # Fetch column names
-            columns = safe_execute(con, "SELECT column_name FROM information_schema.columns WHERE table_schema = 'avocats' AND table_name = 'avocats_data'")
-            if columns:
-                print("Columns in avocats.avocats_data:", [col[0] for col in columns])
+            if 'avocats_data' in [table[0] for table in tables]:
+                table_found = True
+                print(f"\nTable 'avocats_data' found in schema '{schema_name}'. Fetching information...")
+                
+                columns = safe_execute(con, f"SELECT column_name FROM information_schema.columns WHERE table_schema = '{schema_name}' AND table_name = 'avocats_data'")
+                if columns:
+                    print(f"Columns in {schema_name}.avocats_data:", [col[0] for col in columns])
 
-            # Get row count
-            row_count = safe_execute(con, "SELECT COUNT(*) FROM avocats.avocats_data")
-            if row_count:
-                print(f"\nTotal number of rows in avocats.avocats_data: {row_count[0][0]}")
+                row_count = safe_execute(con, f"SELECT COUNT(*) FROM {schema_name}.avocats_data")
+                if row_count:
+                    print(f"\nTotal number of rows in {schema_name}.avocats_data: {row_count[0][0]}")
 
-            # Preview data (first column only)
-            if columns:
-                first_column = columns[0][0]
-                preview_query = f"SELECT {first_column} FROM avocats.avocats_data LIMIT 5"
-                preview_data = safe_execute(con, preview_query)
-                if preview_data:
-                    print(f"\nPreview of first column ({first_column}):")
-                    for row in preview_data:
+                # Select all values from the 'name' column
+                name_query = f"SELECT name FROM {schema_name}.avocats_data"
+                name_data = safe_execute(con, name_query)
+                if name_data:
+                    print("\nAll values in the 'name' column:")
+                    for row in name_data:
                         print(row[0])
+                else:
+                    print("No 'name' column found or it's empty.")
 
-            # Display unique values count in the first column
-            if columns:
-                first_column = columns[0][0]
-                unique_count_query = f"SELECT COUNT(DISTINCT {first_column}) FROM avocats.avocats_data"
-                unique_count = safe_execute(con, unique_count_query)
-                if unique_count:
-                    print(f"\nNumber of unique values in '{first_column}': {unique_count[0][0]}")
-        else:
-            print("\nTable 'avocats.avocats_data' not found in the database.")
+        if not table_found:
+            print("\nTable 'avocats_data' not found in any schema of the database.")
 
         con.close()
 
