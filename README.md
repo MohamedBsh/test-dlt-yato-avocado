@@ -45,7 +45,7 @@ To set up the project environment:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/lawyers-france-evolution.git
+   git clone https://github.com/MohamedBsh/test-dlt-yato-avocado.git
    cd lawyers-france-evolution
    ```
 
