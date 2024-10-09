@@ -1,6 +1,8 @@
-dlt
-yato
+duckdb
 pandas
-numpy
-scikit-learn
+tabulate
 requests
+yato-lib
+dlt
+plotly
+kaleido

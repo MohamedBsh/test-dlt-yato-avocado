@@ -97,3 +97,7 @@ venv.bak/
 *.bak
 *.swp
 *~.nib
+
+# Ajouts spécifiques
+app/__pycache__/
+*.duckdb

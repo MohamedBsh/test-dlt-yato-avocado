@@ -1,60 +1,89 @@
-# Avocats Analysis
+# dlt x yato 🥑🇫🇷
 
-This project analyzes the evolution of the number of lawyers (avocats) in France over time, using open data from the French Ministry of Justice. It includes a data pipeline for processing the data and a React application for visualizing the results.
+![Evolution of the number of lawyers in France](lawyers_evolution_visualization.png)
 
-## Project Overview
+## Overview
 
-The project consists of two main parts:
-1. A Python-based data pipeline for fetching, processing, and analyzing the data.
-2. A React application for visualizing the results.
+This project analyzes and visualizes the evolution of the number of lawyers in France over time. Using public data, I created a data pipeline to process, analyze, and visualize this information.
 
-## Features
+The main objective is to provide insights into the growth and distribution of the legal profession in France.
+## Data Source
 
-- Data extraction from the official French open data portal
-- Data processing and analysis using Python
-- Prediction of lawyer numbers for the next 5 years using linear regression
-- Interactive visualization of historical data and predictions using React and D3.js
+The project utilizes data from the French government's open data platform. The dataset is accessed directly from [link](https://static.data.gouv.fr/resources/evolution-du-nombre-davocats-en-france-par-barreau/20240403-143707/nombre-par-barreau.csv).
 
-## Project objective
 
-The main objective of this project is to explore and demonstrate the use of two emerging open-source tools in the field of data engineering:
+This CSV file contains detailed information about the number of lawyers per bar association in France over time. The data is regularly updated, ensuring that our analysis reflects the most current trends in the French legal profession.
 
-1. **dlt (Data Load Tool)**: A flexible tool for extracting and loading data.
-2. **yato (Yet Another Transformation Orchestrator)**: A lightweight orchestrator for SQL transformations, particularly suited to DuckDB.
+## Stack
 
-By combining these tools with open data, we create a complete data pipeline (for free), from extraction to visualization.
+Our data pipeline leverages two powerful tools for efficient data processing and transformation:
 
-## Why dlt?
+### dlt (data load tool)
 
-- Makes it easy to extract data from a variety of sources.
-- Provides a unified interface for loading data.
-- Simplifies schema and increment management.
+[dlt](https://github.com/dlt-hub/dlt) is an open-source library that simplifies the process of extracting, normalizing, and loading data. Key features include:
 
-## Why yato?
+- Automated schema inference and evolution
+- Built-in data verification and error handling
+- Support for various data sources and destinations
 
-- Enables simple orchestration of SQL transformations.
-- Integrates seamlessly with DuckDB for optimum performance.
-- Offers a lightweight, flexible approach to data transformation.
+In this project, dlt is used for efficient data extraction from the CSV source and loading into our data processing pipeline.
 
-## Prerequisites
+### yato (yet another transformation orchestrator)
 
-- Python 3.8+
-- Node.js 12+
-- npm 6+
+[yato](https://github.com/Bl3f/yato) is a lightweight SQL transformation orchestrator designed to work seamlessly with DuckDB. Its main advantages are:
+
+- Efficient execution of SQL queries in the correct order
+- Easy management of dependencies between transformations
+
+We use yato, the smallest DuckDB SQL orchestrator on Earth, to orchestrate our SQL transformations on the extracted data. Yato works seamlessly with DuckDB, ensuring a clean and well-structured dataset for analysis.
+
+The combination of dlt and yato, leveraging the power of DuckDB, creates a flexible, maintainable, and easy-to-understand data pipeline that forms the backbone of our analysis. This setup allows us to efficiently process and transform data using SQL queries within the DuckDB environment.
 
 ## Installation
 
-To set up the project, simply run the installation script:
+To set up the project environment:
 
-```bash
-bash install.sh
-```
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/lawyers-france-evolution.git
+   cd lawyers-france-evolution
+   ```
 
-## Data Source
-The data is sourced from the French government's open data portal:
-Evolution du nombre d'avocats en France par barreau
+2. Create and activate a virtual environment:
+   ```
+   python -m venv venv
+   source venv/bin/activate 
+   ```
 
-https://www.data.gouv.fr/fr/datasets/660d4e6ba2a1ff2c464e24c5/
+3. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Usage
+
+To run the data pipeline and generate visualizations:
+
+1. Ensure your virtual environment is activated.
+
+2. Execute the main script:
+   ```
+   python app/pipeline.py
+   ```
+
+3. Clean the database
+   ```
+   python app/data_explorer.py
+   Choose 'clean'
+   ```
+
+4. Explore the database
+   ```
+   python app/data_explorer.py
+   Choose 'explore'
+   ```
+
+5. Visualize the data
+   ```
+   python generate_plot.py
+   ```
