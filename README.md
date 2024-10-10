@@ -46,7 +46,7 @@ To set up the project environment:
 1. Clone the repository:
    ```
    git clone https://github.com/MohamedBsh/test-dlt-yato-avocado.git
-   cd lawyers-france-evolution
+   cd test-dlt-yato-avocado
    ```
 
 2. Create and activate a virtual environment:
